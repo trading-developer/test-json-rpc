@@ -1,0 +1,49 @@
+version: '3'
+services:
+  landing-nginx:
+    image: nginx:latest
+    container_name: landing-nginx
+    volumes:
+      - ./images/nginx:/etc/nginx/conf.d
+      - ../landing:/var/www/app
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - landing-php
+    ports:
+      - "8080:80"
+
+  landing-php:
+    build: ./images/php
+    container_name: landing-php
+    environment:
+      APP_DEBUG: 1
+    volumes:
+      - ../landing:/var/www/app
+
+  activity-nginx:
+    image: nginx:latest
+    container_name: activity-nginx
+    volumes:
+      - ./images/nginx:/etc/nginx/conf.d
+      - ../activity:/var/www/app
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - activity-php
+
+  activity-php:
+    build: ./images/php
+    container_name: activity-php
+    environment:
+      APP_DEBUG: 1
+    volumes:
+      - ../activity:/var/www/app
+
+  postgres:
+    image: postgres:12.2-alpine
+    container_name: rpc-postgres
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
